@@ -1,0 +1,28 @@
+version: '3.9'
+services:
+  elasticsearch_server:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.0.0
+    environment:
+      - discovery.type=single-node
+      - ELASTIC_SECURITY=false
+      - xpack.security.enabled=false
+    volumes:
+      - elasticdata:/usr/share/elasticsearch/data
+    networks:
+      - kro_team_aic
+    deploy:
+      resources:
+        limits:
+          memory: 8G
+
+  ubuntu_container:
+    image: ubuntu:latest
+    networks:
+      - kro_team_aic
+    depends_on:
+          - elasticsearch_server
+networks:
+  kro_team_aic:
+
+volumes:
+  elasticdata:
