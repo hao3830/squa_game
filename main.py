@@ -4,6 +4,7 @@ import pygame
 import time
 import numpy as np
 import mediapipe as mp
+from models.oak_d import OAKD
 
 from models.pose_landmarker import PoseLandmarker
 
@@ -40,7 +41,7 @@ class Game:
         pygame.display.set_caption("SQUAT GAME")
         self.clock = pygame.time.Clock()
         self.is_playing = False
-        self.camera = cv2.VideoCapture(0)
+        # self.camera = cv2.VideoCapture(0)
         self.show_settings_popup = False
 
         # Load the play button image
@@ -101,6 +102,9 @@ class Game:
         self.replay_btn = None
         self.is_open_gift = False
         self.open_btn = None
+
+
+        self.oakd = OAKD(WINDOW_WIDTH, WINDOW_HEIGHT)
 
     def display_count_down(self):
         popup_x = PADDING // 4 + PLAY_BUTTON_SIZE // 2 + 20
@@ -483,8 +487,11 @@ class Game:
         while True:
             self.handle_events()
 
-            ret, self.frame = self.camera.read()
-            if not ret:
+            # ret, self.frame = self.camera.read()
+            # if not ret:
+            #     continue
+            self.frame = self.oakd.read()
+            if self.frame is None:
                 continue
             self.frame = cv2.resize(self.frame, (WINDOW_WIDTH, WINDOW_HEIGHT))
             self.frame = cv2.cvtColor(self.frame, cv2.COLOR_BGR2RGB)
@@ -571,6 +578,7 @@ class Game:
                 self.is_playing = False
                 self.is_validated = False
                 self.current_clock = 0
+                self.is_open_gift = False
 
             if self.open_btn is not None and self.open_btn_rect.collidepoint(event.pos):
                 self.is_open_gift = True
